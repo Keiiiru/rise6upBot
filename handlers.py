@@ -1,14 +1,56 @@
-from aiogram import types
-from aiogram.types import WebAppInfo
-from aiogram.dispatcher.filters import CommandStart
+from aiogram import Bot, F, Router
+from aiogram.filters import Command
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    MenuButtonWebApp,
+    Message,
+    WebAppInfo,
+)
 
-from loader import dp
+my_router = Router()
 
 
-@dp.message_handler(CommandStart())
-async def start_handler(m: types.Message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(
-        types.KeyboardButton('Играть', web_app=WebAppInfo(url="https://rise6up.com/"))
+@my_router.message(Command("start"))
+async def command_start(message: Message, bot: Bot, base_url: str):
+    await bot.set_chat_menu_button(
+        chat_id=message.chat.id,
+        menu_button=MenuButtonWebApp(
+            text="Open Menu", web_app=WebAppInfo(url=f"{base_url}/demo")
+        ),
     )
-    await m.answer('Привет! Сыграть ты можешь нажав на кнопку!', reply_markup=markup)
+    await message.answer(
+        """Hi!\nSend me any type of message to start.\nOr just send /webview"""
+    )
+
+
+@my_router.message(Command("webview"))
+async def command_webview(message: Message, base_url: str):
+    await message.answer(
+        "Good. Now you can try to send it via Webview",
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Open Webview", web_app=WebAppInfo(url=f"{base_url}/demo")
+                    )
+                ]
+            ]
+        ),
+    )
+
+
+@my_router.message(~F.message.via_bot)  # Echo to all messages except messages via bot
+async def echo_all(message: Message, base_url: str):
+    await message.answer(
+        "Test webview",
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Open", web_app=WebAppInfo(url=f"{base_url}/demo")
+                    )
+                ]
+            ]
+        ),
+    )
