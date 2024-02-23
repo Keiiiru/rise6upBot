@@ -6,7 +6,7 @@ import config
 
 def generate_token(payload: dict) -> str:
     pretoken = b64encode(json.dumps(payload).encode()).decode()
-    s_key_len = len(config.SECRET_KEY)
+    s_key_len = int(len(config.SECRET_KEY)/2)
     token = b64encode(
         (
             config.SECRET_KEY[:s_key_len] + pretoken + config.SECRET_KEY[s_key_len:]
