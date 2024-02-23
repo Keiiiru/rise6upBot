@@ -8,4 +8,3 @@ RUN pipenv install --system --ignore-pipfile --deploy
 
 COPY . /code/
 
-CMD [ "python", "main.py" ]
